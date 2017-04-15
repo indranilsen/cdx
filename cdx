@@ -11,13 +11,21 @@
 # deep directories.
 
 # ========================================
-#	VARIABLES
+#	CONSTANTS & VARIABLES
 # ========================================
 
+# Constants
 VERSION="1.0.0"
-scriptName="${BASH_SOURCE[0]}"
-scriptPath="$(cd "$(dirname "scriptName" )" && pwd)"
-validDirectory=1
+SCRIPT_NAME="${BASH_SOURCE[0]}"
+SCRIPT_PATH="$(cd "$(dirname "SCRIPT_NAME" )" && pwd)"
+
+# Boolean Variables
+valid_directory=1
+cd_into_child_directory=0
+
+# Variables
+visible_directories=0
+hidden_directories=0
 
 # ========================================
 #	ARGUMENTS & FLAGS
@@ -48,11 +56,36 @@ case "$1" in
     *)
         DIRECTORY="${1}"
 		if [ ! -d "$DIRECTORY" ]; then
-            validDirectory=0
-			echo "$DIRECTORY: No such file or directory; $validDirectory"
+            valid_directory=0
+			echo "$DIRECTORY: No such file or directory; $valid_directory"
 			exit
 		fi
         ;;
 esac
 shift
 done
+
+# ========================================
+#	FUNCTIONS
+# ========================================
+
+check_number_of_visible_child_directories() {
+    visible_directories=$( ls "$DIRECTORY" | wc -l )
+    visible_directories=$(( visible_directories ))
+}
+
+check_number_of_hidden_child_directories() {
+    hidden_directories=$( find ./"$DIRECTORY" -mindepth 1 -maxdepth 1 -name '.*' | wc -l)
+    hidden_directories=$(( hidden_directories ))
+}
+
+check_child_directories() {
+    check_number_of_visible_child_directories
+    check_number_of_hidden_child_directories
+    echo "$visible_directories :: $hidden_directories"
+    if [[ visible_directories -eq 1 ]]; then
+        echo 'One directory'
+    fi
+}
+
+check_child_directories
