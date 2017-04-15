@@ -1,0 +1,19 @@
+#!/bin/bash
+# ========================================
+#	HEADER
+# ========================================
+
+# Author: Indranil Sen
+#
+# This bash program is a wrapper around
+# the cd (chdir - Change Directory) command
+# that enhances and expedites traversing
+# deep directories.
+
+# ========================================
+#	VARIABLES
+# ========================================
+
+version="1.1.1"
+scriptName="${BASH_SOURCE[0]}"
+scriptPath="$(cd "$(dirname "scriptName" )" && pwd)"
