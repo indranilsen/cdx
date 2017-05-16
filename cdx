@@ -69,6 +69,13 @@ done
 #	FUNCTIONS
 # ========================================
 
+change_directory() {
+    echo $1
+    echo 'YO'
+    cd "$1"
+    echo $( pwd )
+}
+
 check_number_of_visible_child_directories() {
     visible_directories=$( ls "$DIRECTORY" | wc -l )
     visible_directories=$(( visible_directories ))
@@ -79,12 +86,49 @@ check_number_of_hidden_child_directories() {
     hidden_directories=$(( hidden_directories ))
 }
 
+list_child_directories() {
+    child_directories=($(ls -d */))
+    counter=0
+    for directory in ${child_directories[@]}; do
+        let counter=counter+1
+        echo $counter: $directory
+    done
+    echo $child_directories
+}
+
+prompt_auto_cd_input() {
+    while true; do
+        read -p "Enter [1-"$1"] or 'q' to exit: " input
+        valid=false;
+        case $input in
+            [1-$1]*) echo yes; break;;
+            [Qq]* ) exit;;
+            * ) echo "Invalid response.";;
+        esac
+    done
+}
+
 check_child_directories() {
     check_number_of_visible_child_directories
     check_number_of_hidden_child_directories
     echo "$visible_directories :: $hidden_directories"
-    if [[ visible_directories -eq 1 ]]; then
-        echo 'One directory'
+    if [[ visible_directories -ne 1 ]]; then
+        change_directory $DIRECTORY
+        #============ Auto change-dir start ============
+        while [ $( ls | wc -l ) -gt 5 -o input != "q" -o input != "Q" ]; do
+            #Vars:
+            child_directories=(*)
+            input=0
+
+            list_child_directories
+            prompt_auto_cd_input ${#child_directories[@]}
+
+            if [ input != "q" -o input != "Q" ]; then
+                let input=input-1
+                change_directory ${child_directories[input]}
+            fi
+        done
+        #============= Auto change-dir end =============
     fi
 }
 
