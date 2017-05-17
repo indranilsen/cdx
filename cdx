@@ -112,10 +112,19 @@ check_child_directories() {
     check_number_of_visible_child_directories
     check_number_of_hidden_child_directories
     echo "$visible_directories :: $hidden_directories"
-    if [[ visible_directories -ne 1 ]]; then
+    if [[ visible_directories -eq 1 ]]; then
         change_directory $DIRECTORY
         #============ Auto change-dir start ============
-        while [ $( ls | wc -l ) -gt 5 -o input != "q" -o input != "Q" ]; do
+        $(ls)
+        while [ $( ls | wc -l ) -le 5 -o input != "q" -o input != "Q" ]; do
+            num_dirs=$( ls -d */ | wc -l )
+            num_dirs=$(( num_dirs ))
+            if [[ $num_dirs -gt 5 ]]; then
+                echo $num_dirs
+                ls
+                echo exiting
+                break
+            fi
             #Vars:
             child_directories=(*)
             input=0
